@@ -35,6 +35,7 @@ export default function ProductenPage() {
                     await fetchProducts();
                     break; // Success, exit retry loop
                 } catch (error) {
+                    console.error('Retry attempt failed:', error);
                     retries--;
                     if (retries === 0) {
                         console.error('All retries failed');
