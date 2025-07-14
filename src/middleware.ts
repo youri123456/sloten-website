@@ -1,7 +1,22 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { initDatabase } from '../lib/database';
 
-export function middleware(request: NextRequest) {
+// Initialize database on first request
+let dbInitialized = false;
+
+export async function middleware(request: NextRequest) {
+    // Initialize database only once
+    if (!dbInitialized) {
+        try {
+            await initDatabase();
+            console.log('Database initialized successfully');
+            dbInitialized = true;
+        } catch (error) {
+            console.error('Failed to initialize database:', error);
+        }
+    }
+
     const response = NextResponse.next();
 
     // Track page visits for analytics (skip API routes and static files)

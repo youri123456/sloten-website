@@ -155,6 +155,11 @@ export const initDatabase = (): Promise<boolean> => {
         ('Smart Fietsslot Pro', 'Revolutionair fietsslot dat je met je smartphone kunt openen. Inclusief alarm en GPS-tracking. Waterdicht en ultra-sterk materiaal.', 89.99, '/images/fietsslot.png', 'fietsslot', 25, '["Smartphone opening", "Alarm functie", "GPS tracking", "Waterdicht", "Ultra-sterk materiaal", "Batterij duurt 6 maanden"]'),
         ('Smart Kabelslot Secure', 'Flexibel kabelslot met smartphone bediening en alarm. Perfect voor motoren, fietsen en andere voertuigen. Verstelbare kabellengte.', 79.99, '/images/kettingslot.png', 'kabelslot', 30, '["Smartphone opening", "Alarm functie", "Verstelbare kabel", "Weersbestendig", "Lange batterijduur", "Bluetooth connectie"]')`);
 
+            // Reset stock to default values if they are 0 (for Vercel deployment)
+            db.run(`UPDATE products SET stock = 25 WHERE id = 1 AND stock = 0`);
+            db.run(`UPDATE products SET stock = 30 WHERE id = 2 AND stock = 0`);
+            db.run(`UPDATE products SET stock = 20 WHERE id = 3 AND stock = 0`);
+
             resolve(true);
         });
     });
