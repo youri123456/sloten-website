@@ -92,6 +92,7 @@ const db = new Database('./webshop.db');
 // Initialize database tables
 export const initDatabase = (): Promise<boolean> => {
     return new Promise((resolve) => {
+        console.log('[DATABASE] initDatabase called');
         db.serialize(() => {
             // Products table
             db.run(`CREATE TABLE IF NOT EXISTS products (
@@ -160,6 +161,7 @@ export const initDatabase = (): Promise<boolean> => {
             db.run(`UPDATE products SET stock = 30 WHERE id = 2 AND stock = 0`);
             db.run(`UPDATE products SET stock = 20 WHERE id = 3 AND stock = 0`);
 
+            console.log('[DATABASE] initDatabase completed');
             resolve(true);
         });
     });
@@ -168,9 +170,15 @@ export const initDatabase = (): Promise<boolean> => {
 // Database query functions
 export const getAllProducts = (): Promise<Product[]> => {
     return new Promise((resolve, reject) => {
+        console.log('[DATABASE] getAllProducts called');
         db.all("SELECT * FROM products ORDER BY id", (err, rows) => {
-            if (err) reject(err);
-            else resolve(rows as Product[]);
+            if (err) {
+                console.error('[DATABASE] Error in getAllProducts:', err);
+                reject(err);
+            } else {
+                console.log('[DATABASE] getAllProducts returned', rows?.length || 0, 'products');
+                resolve(rows as Product[]);
+            }
         });
     });
 };

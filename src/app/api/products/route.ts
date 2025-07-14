@@ -35,10 +35,16 @@ async function isAuthenticated(): Promise<boolean> {
 
 export async function GET() {
     try {
-        // Initialize database if needed
-        await initDatabase();
+        console.log('[PRODUCTS API] GET request received');
 
+        // Initialize database if needed
+        console.log('[PRODUCTS API] Initializing database...');
+        await initDatabase();
+        console.log('[PRODUCTS API] Database initialized');
+
+        console.log('[PRODUCTS API] Fetching products...');
         const products = await getAllProducts();
+        console.log('[PRODUCTS API] Raw products:', products.length, 'products');
 
         // Parse the features JSON string for each product
         const parsedProducts = products.map((product: Product) => ({
@@ -46,10 +52,14 @@ export async function GET() {
             features: typeof product.features === 'string' ? JSON.parse(product.features || '[]') : product.features
         }));
 
+        console.log('[PRODUCTS API] Returning', parsedProducts.length, 'products');
         return NextResponse.json(parsedProducts);
     } catch (error) {
-        console.error('Error fetching products:', error);
-        return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 });
+        console.error('[PRODUCTS API] Error fetching products:', error);
+        return NextResponse.json({
+            error: 'Failed to fetch products',
+            details: error instanceof Error ? error.message : 'Unknown error'
+        }, { status: 500 });
     }
 }
 

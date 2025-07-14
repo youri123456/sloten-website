@@ -33,13 +33,21 @@ export default function ProductenPage() {
 
     const fetchProducts = async () => {
         try {
+            console.log('Fetching products...');
             const response = await fetch('/api/products');
+            console.log('Response status:', response.status);
+
             if (!response.ok) {
-                throw new Error('Failed to fetch products');
+                const errorText = await response.text();
+                console.error('API Error:', errorText);
+                throw new Error(`Failed to fetch products: ${response.status} ${errorText}`);
             }
+
             const data = await response.json();
+            console.log('Products loaded:', data.length, 'products');
             setProducts(data);
         } catch (err) {
+            console.error('Error fetching products:', err);
             setError(err instanceof Error ? err.message : 'An error occurred');
         } finally {
             setLoading(false);
