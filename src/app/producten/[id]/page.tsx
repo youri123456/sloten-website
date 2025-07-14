@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { Shield, Star, Check, ArrowLeft, Plus, Minus, Smartphone, Zap } from 'lucide-react';
+import { Shield, Star, Check, ArrowLeft, Plus, Minus, Smartphone } from 'lucide-react';
 import { useCart } from '../../../contexts/CartContext';
 import { useToast } from '../../../contexts/ToastContext';
 import Header from '../../../components/Header';

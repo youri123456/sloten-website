@@ -37,6 +37,13 @@ interface ContactMessage {
     created_at: string;
 }
 
+interface OrderItem {
+    id: number;
+    name: string;
+    quantity: number;
+    price: number;
+}
+
 export default function AdminDashboard() {
     const [orders, setOrders] = useState<Order[]>([]);
     const [analytics, setAnalytics] = useState<Analytics>({ total_visits: 0, unique_visitors: 0, today_visits: 0, week_visits: 0, month_visits: 0 });
@@ -385,7 +392,7 @@ export default function AdminDashboard() {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="text-sm text-gray-900">
-                                                {JSON.parse(order.order_items).map((item: any, index: number) => (
+                                                {JSON.parse(order.order_items).map((item: OrderItem, index: number) => (
                                                     <div key={index} className="mb-1">
                                                         {item.quantity}x {item.name}
                                                     </div>

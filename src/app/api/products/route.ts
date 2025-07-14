@@ -16,7 +16,7 @@ interface Product {
 }
 
 // Check if user is authenticated admin
-async function isAuthenticated(request: Request): Promise<boolean> {
+async function isAuthenticated(): Promise<boolean> {
     try {
         const cookieStore = await cookies();
         const token = cookieStore.get('admin_token')?.value;
@@ -30,7 +30,7 @@ async function isAuthenticated(request: Request): Promise<boolean> {
     }
 }
 
-export async function GET(request: Request) {
+export async function GET() {
     try {
         const products = await getAllProducts();
 
@@ -49,7 +49,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
     try {
-        if (!(await isAuthenticated(request))) {
+        if (!(await isAuthenticated())) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
@@ -80,7 +80,7 @@ export async function POST(request: Request) {
 
 export async function PUT(request: Request) {
     try {
-        if (!(await isAuthenticated(request))) {
+        if (!(await isAuthenticated())) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
@@ -114,7 +114,7 @@ export async function PUT(request: Request) {
 
 export async function DELETE(request: Request) {
     try {
-        if (!(await isAuthenticated(request))) {
+        if (!(await isAuthenticated())) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
