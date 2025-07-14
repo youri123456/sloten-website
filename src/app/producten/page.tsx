@@ -56,6 +56,22 @@ export default function ProductenPage() {
         try {
             console.log('Fetching products...');
 
+            // First test if API is working
+            console.log('Testing API connectivity...');
+            const testResponse = await fetch('/api/test', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!testResponse.ok) {
+                throw new Error(`API test failed: ${testResponse.status}`);
+            }
+
+            const testData = await testResponse.json();
+            console.log('API test result:', testData);
+
             // Add timeout to prevent hanging requests
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout

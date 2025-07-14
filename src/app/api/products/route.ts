@@ -39,8 +39,39 @@ export async function GET() {
 
         // Initialize database if needed
         console.log('[PRODUCTS API] Initializing database...');
-        await initDatabase();
-        console.log('[PRODUCTS API] Database initialized');
+        try {
+            await initDatabase();
+            console.log('[PRODUCTS API] Database initialized');
+        } catch (dbError) {
+            console.error('[PRODUCTS API] Database initialization failed:', dbError);
+            // Return fallback data instead of failing completely
+            const fallbackProducts = [
+                {
+                    id: 1,
+                    name: 'Smart Fietsslot Pro',
+                    description: 'Revolutionair fietsslot dat je met je smartphone kunt openen.',
+                    price: 89.99,
+                    image: '/images/fietsslot.png',
+                    category: 'fietsslot',
+                    stock: 25,
+                    features: ['Smartphone opening', 'Alarm functie', 'GPS tracking'],
+                    created_at: new Date().toISOString()
+                },
+                {
+                    id: 2,
+                    name: 'Smart Kabelslot Secure',
+                    description: 'Flexibel kabelslot met smartphone bediening en alarm.',
+                    price: 79.99,
+                    image: '/images/kettingslot.png',
+                    category: 'kabelslot',
+                    stock: 30,
+                    features: ['Smartphone opening', 'Alarm functie', 'Verstelbare kabel'],
+                    created_at: new Date().toISOString()
+                }
+            ];
+            console.log('[PRODUCTS API] Returning fallback products');
+            return NextResponse.json(fallbackProducts);
+        }
 
         console.log('[PRODUCTS API] Fetching products...');
         const products = await getAllProducts();
