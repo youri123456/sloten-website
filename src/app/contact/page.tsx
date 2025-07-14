@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Shield, Mail, Phone, MapPin, Clock, Send, MessageCircle } from 'lucide-react';
+import { Shield, Mail, Phone, Clock, Send } from 'lucide-react';
 import { useToast } from '../../contexts/ToastContext';
 import Header from '../../components/Header';
 

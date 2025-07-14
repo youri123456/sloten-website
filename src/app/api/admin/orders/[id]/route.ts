@@ -50,8 +50,7 @@ export async function PUT(
         await updateOrderStatus(orderId, status);
 
         return NextResponse.json({ success: true, message: 'Order status updated' });
-    } catch (error) {
-        console.error('Error updating order status:', error);
+    } catch {
         return NextResponse.json({ error: 'Failed to update order status' }, { status: 500 });
     }
 } 

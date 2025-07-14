@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Shield, ShoppingCart, ArrowLeft, CheckCircle, User, MapPin, Phone, Mail } from 'lucide-react';
+import { Shield, ShoppingCart, ArrowLeft, User } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import { useToast } from '../../contexts/ToastContext';
 import Header from '../../components/Header';
@@ -166,8 +166,7 @@ function CheckoutForm({ clientSecret, onClientSecretChange }: { clientSecret: st
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
     const [paymentStep, setPaymentStep] = useState<'form' | 'payment' | 'processing'>('form');
     const [isLoadingPostcode, setIsLoadingPostcode] = useState(false);
-    const router = useRouter();
-    const { cartItems, getTotalPrice, clearCart } = useCart();
+    const { cartItems, getTotalPrice } = useCart();
     const { addToast } = useToast();
 
     // Auto-transition to payment when clientSecret is available

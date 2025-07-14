@@ -18,7 +18,7 @@ interface CartItem {
 interface CartContextType {
     cartItems: CartItem[];
     cartCount: number;
-    addToCart: (product: any) => void;
+    addToCart: (product: CartItem) => void;
     removeFromCart: (id: number) => void;
     updateQuantity: (id: number, quantity: number) => void;
     clearCart: () => void;
@@ -60,7 +60,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         setCartCount(count);
     };
 
-    const addToCart = (product: any) => {
+    const addToCart = (product: CartItem) => {
         setCartItems(currentItems => {
             const existingItem = currentItems.find(item => item.id === product.id);
 

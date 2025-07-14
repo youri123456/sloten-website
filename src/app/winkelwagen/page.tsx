@@ -6,18 +6,7 @@ import { Shield, ShoppingCart, Trash2, Plus, Minus, ArrowLeft } from 'lucide-rea
 import { useCart } from '../../contexts/CartContext';
 import Header from '../../components/Header';
 
-interface CartItem {
-    id: number;
-    name: string;
-    description: string;
-    price: number;
-    image: string;
-    category: string;
-    stock: number;
-    features: string[];
-    created_at: string;
-    quantity: number;
-}
+
 
 export default function WinkelwagenPage() {
     const [loading, setLoading] = useState(true);

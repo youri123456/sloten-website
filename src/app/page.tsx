@@ -1,9 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Image from 'next/image'
 import Link from 'next/link'
-import { ShoppingCart, Shield, Smartphone, Zap, Star } from 'lucide-react'
+import { Shield, Smartphone, Zap, Star } from 'lucide-react'
 import Header from '../components/Header'
 
 interface Product {

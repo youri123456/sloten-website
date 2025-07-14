@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Shield, ShoppingCart, Star, Smartphone, Zap, Check } from 'lucide-react';
+import { Shield, Star, Check } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import { useToast } from '../../contexts/ToastContext';
 import Header from '../../components/Header';

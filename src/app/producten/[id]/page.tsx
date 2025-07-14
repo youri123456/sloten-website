@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Shield, ShoppingCart, Star, Check, ArrowLeft, Plus, Minus, Smartphone, Zap, MapPin } from 'lucide-react';
+import { Shield, Star, Check, ArrowLeft, Plus, Minus, Smartphone, Zap } from 'lucide-react';
 import { useCart } from '../../../contexts/CartContext';
 import { useToast } from '../../../contexts/ToastContext';
 import Header from '../../../components/Header';
@@ -22,7 +22,6 @@ interface Product {
 
 export default function ProductDetailPage() {
     const params = useParams();
-    const router = useRouter();
     const [product, setProduct] = useState<Product | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);

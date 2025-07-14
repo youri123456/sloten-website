@@ -35,14 +35,6 @@ interface AdminUser {
     created_at: string;
 }
 
-interface SiteVisit {
-    id: number;
-    visitor_ip: string;
-    user_agent: string;
-    page_path: string;
-    created_at: string;
-}
-
 interface ContactMessage {
     id: number;
     name: string;

@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Shield, Users, ShoppingCart, TrendingUp, Package, Calendar, Euro, User, Phone, MapPin, LogOut, Mail, MessageSquare } from 'lucide-react';
+import { Shield, Users, TrendingUp, Package, Calendar, Euro, User, Phone, MapPin, LogOut, Mail, MessageSquare } from 'lucide-react';
 import { useToast } from '../../../contexts/ToastContext';
 
 interface Order {
@@ -14,7 +14,7 @@ interface Order {
     customer_city: string;
     customer_postal_code: string;
     total_amount: number;
-    order_items: any[];
+    order_items: string;
     status: string;
     created_at: string;
 }
@@ -48,11 +48,7 @@ export default function AdminDashboard() {
     const router = useRouter();
     const { addToast } = useToast();
 
-    useEffect(() => {
-        fetchData();
-    }, []);
-
-    const fetchData = async () => {
+    const fetchData = useCallback(async () => {
         try {
             const [ordersResponse, analyticsResponse, contactResponse] = await Promise.all([
                 fetch('/api/admin/orders'),
@@ -75,12 +71,16 @@ export default function AdminDashboard() {
             setOrders(ordersData);
             setAnalytics(analyticsData);
             setContactMessages(contactData);
-        } catch (error) {
+        } catch {
             setError('Failed to load dashboard data');
         } finally {
             setLoading(false);
         }
-    };
+    }, [router]);
+
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
 
     const handleLogout = async () => {
         try {
@@ -385,7 +385,7 @@ export default function AdminDashboard() {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="text-sm text-gray-900">
-                                                {order.order_items.map((item: any, index: number) => (
+                                                {JSON.parse(order.order_items).map((item: any, index: number) => (
                                                     <div key={index} className="mb-1">
                                                         {item.quantity}x {item.name}
                                                     </div>

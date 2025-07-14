@@ -30,8 +30,7 @@ export async function GET(request: Request) {
         const messages = await getAllContactMessages();
 
         return NextResponse.json(messages);
-    } catch (error) {
-        console.error('Error fetching contact messages:', error);
+    } catch {
         return NextResponse.json({ error: 'Failed to fetch contact messages' }, { status: 500 });
     }
 }
@@ -60,8 +59,7 @@ export async function PUT(request: Request) {
         await updateContactMessageStatus(messageId, status);
 
         return NextResponse.json({ success: true, message: 'Message status updated' });
-    } catch (error) {
-        console.error('Error updating message status:', error);
+    } catch {
         return NextResponse.json({ error: 'Failed to update message status' }, { status: 500 });
     }
 } 

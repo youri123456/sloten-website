@@ -45,8 +45,7 @@ export default function AdminProductsPage() {
     const [newFeature, setNewFeature] = useState('');
     const [submitting, setSubmitting] = useState(false);
     const [uploadingImage, setUploadingImage] = useState(false);
-    const [imageFile, setImageFile] = useState<File | null>(null);
-    const [imagePreview, setImagePreview] = useState<string | null>(null);
+
     const router = useRouter();
     const { addToast } = useToast();
 
@@ -62,7 +61,7 @@ export default function AdminProductsPage() {
             }
             const data = await response.json();
             setProducts(data);
-        } catch (error) {
+        } catch {
             setError('Failed to load products');
         } finally {
             setLoading(false);
@@ -178,7 +177,6 @@ export default function AdminProductsPage() {
                     ...prev,
                     image: result.imageUrl
                 }));
-                setImagePreview(result.imageUrl);
                 addToast('Afbeelding succesvol geüpload!', 'success', 3000);
             } else {
                 const error = await response.json();
