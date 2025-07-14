@@ -1,40 +1,46 @@
-<<<<<<< HEAD
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SmartLock Store
 
-## Getting Started
+Een moderne webshop voor smart locks gebouwd met Next.js 15, TypeScript, en Tailwind CSS.
 
-First, run the development server:
+## Features
+
+- 🛒 **Winkelwagen functionaliteit** - Voeg producten toe en beheer je winkelwagen
+- 💳 **Stripe integratie** - Veilige betalingen met iDEAL en creditcard
+- 📱 **Responsive design** - Werkt perfect op alle apparaten
+- 🔐 **Admin panel** - Beheer producten, bestellingen en contact berichten
+- 📊 **Analytics** - Track website bezoeken en statistieken
+- 🎨 **Modern UI** - Mooie, gebruiksvriendelijke interface
+
+## Technologieën
+
+- **Next.js 15** - React framework met App Router
+- **TypeScript** - Type-safe development
+- **Tailwind CSS** - Utility-first CSS framework
+- **Stripe** - Betalingsverwerking
+- **SQLite** - Lokale database (voor admin functionaliteit)
+- **Vercel** - Deployment platform
+
+## Deployment Status
+
+✅ **Laatste update**: 14 juli 2025 - Statische producten data geïmplementeerd voor Vercel compatibiliteit
+
+## Installatie
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Environment Variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Maak een `.env.local` bestand aan met:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+STRIPE_SECRET_KEY=sk_test_...
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+JWT_SECRET=your-secret-key
+```
 
-## Learn More
+## Deployment
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-=======
-# sloten-website
->>>>>>> eb0739722940726764fea2d3edd616fdb407bf2d
+De website wordt automatisch gedeployed op Vercel bij elke push naar de main branch.
