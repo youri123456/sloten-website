@@ -188,13 +188,29 @@ export const reduceProductStock = (products: { id: number; quantity: number }[])
     });
 };
 
-export const createOrder = (orderData: any): Promise<number> => {
+interface OrderData {
+    customer_name: string;
+    customer_email: string;
+    customer_phone: string;
+    customer_address: string;
+    customer_city: string;
+    customer_postal_code: string;
+    total_amount: number;
+    order_items: Array<{
+        id: number;
+        quantity: number;
+        price: number;
+    }>;
+    payment_intent_id?: string;
+}
+
+export const createOrder = (orderData: OrderData): Promise<number> => {
     return new Promise((resolve, reject) => {
         const { customer_name, customer_email, customer_phone, customer_address, customer_city, customer_postal_code, total_amount, order_items, payment_intent_id } = orderData;
 
         // Check if order with this payment intent already exists
         if (payment_intent_id) {
-            db.get("SELECT id FROM orders WHERE payment_intent_id = ?", [payment_intent_id], (err, existingOrder: any) => {
+            db.get("SELECT id FROM orders WHERE payment_intent_id = ?", [payment_intent_id], (err, existingOrder: { id: number } | undefined) => {
                 if (err) {
                     reject(err);
                     return;
@@ -216,13 +232,13 @@ export const createOrder = (orderData: any): Promise<number> => {
     });
 };
 
-const createOrderInternal = (orderData: any, resolve: (id: number) => void, reject: (err: any) => void) => {
+const createOrderInternal = (orderData: OrderData, resolve: (id: number) => void, reject: (err: Error) => void) => {
     const { customer_name, customer_email, customer_phone, customer_address, customer_city, customer_postal_code, total_amount, order_items, payment_intent_id } = orderData;
 
     console.log(`[CREATE ORDER] Creating order with items:`, order_items);
 
     // First, reduce stock for all products
-    const stockReductions = order_items.map((item: any) => ({
+    const stockReductions = order_items.map((item) => ({
         id: item.id,
         quantity: item.quantity
     }));
@@ -236,7 +252,7 @@ const createOrderInternal = (orderData: any, resolve: (id: number) => void, reje
             db.run(`INSERT INTO orders (customer_name, customer_email, customer_phone, customer_address, customer_city, customer_postal_code, total_amount, order_items, payment_intent_id) 
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                 [customer_name, customer_email, customer_phone, customer_address, customer_city, customer_postal_code, total_amount, JSON.stringify(order_items), payment_intent_id],
-                function (err: any) {
+                function (err: Error | null) {
                     if (err) {
                         console.error(`[CREATE ORDER] Error creating order:`, err);
                         reject(err);
@@ -252,11 +268,26 @@ const createOrderInternal = (orderData: any, resolve: (id: number) => void, reje
         });
 };
 
-export const getAllOrders = (): Promise<any[]> => {
+interface Order {
+    id: number;
+    customer_name: string;
+    customer_email: string;
+    customer_phone: string;
+    customer_address: string;
+    customer_city: string;
+    customer_postal_code: string;
+    total_amount: number;
+    order_items: string;
+    status: string;
+    payment_intent_id?: string;
+    created_at: string;
+}
+
+export const getAllOrders = (): Promise<Order[]> => {
     return new Promise((resolve, reject) => {
         db.all("SELECT * FROM orders ORDER BY created_at DESC", (err, rows) => {
             if (err) reject(err);
-            else resolve(rows);
+            else resolve(rows as Order[]);
         });
     });
 };
@@ -270,11 +301,18 @@ export const updateOrderStatus = (orderId: number, status: string): Promise<void
     });
 };
 
-export const getAdminUser = (username: string): Promise<any> => {
+interface AdminUser {
+    id: number;
+    username: string;
+    password_hash: string;
+    created_at: string;
+}
+
+export const getAdminUser = (username: string): Promise<AdminUser | undefined> => {
     return new Promise((resolve, reject) => {
         db.get("SELECT * FROM admin_users WHERE username = ?", [username], (err, row) => {
             if (err) reject(err);
-            else resolve(row);
+            else resolve(row as AdminUser | undefined);
         });
     });
 };
@@ -289,7 +327,15 @@ export const logSiteVisit = (visitorIp: string, userAgent: string, pagePath: str
     });
 };
 
-export const getSiteStats = (): Promise<any> => {
+interface SiteStats {
+    total_visits: number;
+    unique_visitors: number;
+    today_visits: number;
+    week_visits: number;
+    month_visits: number;
+}
+
+export const getSiteStats = (): Promise<SiteStats> => {
     return new Promise((resolve, reject) => {
         db.all(`SELECT 
               COUNT(*) as total_visits,
@@ -299,13 +345,23 @@ export const getSiteStats = (): Promise<any> => {
               COUNT(CASE WHEN DATE(created_at) >= DATE('now', '-30 days') THEN 1 END) as month_visits
             FROM site_visits`, (err, rows) => {
             if (err) reject(err);
-            else resolve(rows[0] || { total_visits: 0, unique_visitors: 0, today_visits: 0, week_visits: 0, month_visits: 0 });
+            else resolve((rows[0] as SiteStats) || { total_visits: 0, unique_visitors: 0, today_visits: 0, week_visits: 0, month_visits: 0 });
         });
     });
 };
 
+interface ProductData {
+    name: string;
+    description: string;
+    price: number;
+    image: string;
+    category: string;
+    stock: number;
+    features: string[];
+}
+
 // Product CRUD functions
-export const createProduct = (productData: any): Promise<number> => {
+export const createProduct = (productData: ProductData): Promise<number> => {
     return new Promise((resolve, reject) => {
         const { name, description, price, image, category, stock, features } = productData;
 
@@ -319,14 +375,14 @@ export const createProduct = (productData: any): Promise<number> => {
     });
 };
 
-export const updateProduct = (id: number, productData: any): Promise<void> => {
+export const updateProduct = (id: number, productData: ProductData): Promise<void> => {
     return new Promise((resolve, reject) => {
         const { name, description, price, image, category, stock, features } = productData;
 
         console.log(`[UPDATE PRODUCT] Updating product ${id} with stock: ${stock}`);
 
         // First, get current stock
-        db.get("SELECT stock FROM products WHERE id = ?", [id], (err, row: any) => {
+        db.get("SELECT stock FROM products WHERE id = ?", [id], (err, row: { stock: number } | undefined) => {
             if (err) {
                 console.error(`[UPDATE PRODUCT] Error getting current stock for product ${id}:`, err);
                 reject(err);
@@ -362,8 +418,15 @@ export const deleteProduct = (id: number): Promise<void> => {
     });
 };
 
+interface ContactMessageData {
+    name: string;
+    email: string;
+    subject: string;
+    message: string;
+}
+
 // Contact messages functions
-export const createContactMessage = (messageData: any): Promise<number> => {
+export const createContactMessage = (messageData: ContactMessageData): Promise<number> => {
     return new Promise((resolve, reject) => {
         const { name, email, subject, message } = messageData;
 
@@ -377,11 +440,21 @@ export const createContactMessage = (messageData: any): Promise<number> => {
     });
 };
 
-export const getAllContactMessages = (): Promise<any[]> => {
+interface ContactMessage {
+    id: number;
+    name: string;
+    email: string;
+    subject: string;
+    message: string;
+    status: string;
+    created_at: string;
+}
+
+export const getAllContactMessages = (): Promise<ContactMessage[]> => {
     return new Promise((resolve, reject) => {
         db.all("SELECT * FROM contact_messages ORDER BY created_at DESC", (err, rows) => {
             if (err) reject(err);
-            else resolve(rows);
+            else resolve(rows as ContactMessage[]);
         });
     });
 };
