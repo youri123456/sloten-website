@@ -54,54 +54,106 @@ export default function ProductenPage() {
 
     const fetchProducts = async () => {
         try {
-            console.log('Fetching products...');
+            console.log('=== PRODUCTS FETCHING START ===');
+            console.log('Current URL:', window.location.href);
+            console.log('User Agent:', navigator.userAgent);
+            console.log('Online status:', navigator.onLine);
+
+            // Test basic fetch functionality
+            console.log('Testing basic fetch...');
+            try {
+                const basicTest = await fetch('/api/test', { method: 'GET' });
+                console.log('Basic fetch test status:', basicTest.status);
+                console.log('Basic fetch test ok:', basicTest.ok);
+            } catch (basicError) {
+                console.error('Basic fetch test failed:', basicError);
+            }
 
             // First test if API is working
             console.log('Testing API connectivity...');
-            const testResponse = await fetch('/api/test', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
+            let testResponse;
+            try {
+                testResponse = await fetch('/api/test', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+                console.log('Test API response status:', testResponse.status);
+                console.log('Test API response ok:', testResponse.ok);
+            } catch (testError) {
+                console.error('Test API fetch failed:', testError);
+                const errorMessage = testError instanceof Error ? testError.message : 'Unknown error';
+                throw new Error(`Test API failed: ${errorMessage}`);
+            }
 
             if (!testResponse.ok) {
-                throw new Error(`API test failed: ${testResponse.status}`);
+                const testErrorText = await testResponse.text();
+                console.error('Test API error response:', testErrorText);
+                throw new Error(`API test failed: ${testResponse.status} - ${testErrorText}`);
             }
 
             const testData = await testResponse.json();
             console.log('API test result:', testData);
 
+            // Now try to fetch products
+            console.log('Fetching products from API...');
+
             // Add timeout to prevent hanging requests
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+            const timeoutId = setTimeout(() => {
+                console.log('Request timeout triggered');
+                controller.abort();
+            }, 10000); // 10 second timeout
 
-            const response = await fetch('/api/products', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                signal: controller.signal,
-            });
+            let response;
+            try {
+                response = await fetch('/api/products', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    signal: controller.signal,
+                });
+                console.log('Products API response received');
+            } catch (fetchError) {
+                console.error('Products API fetch failed:', fetchError);
+                clearTimeout(timeoutId);
+                throw fetchError;
+            }
 
             clearTimeout(timeoutId);
             console.log('Response status:', response.status);
+            console.log('Response ok:', response.ok);
             console.log('Response headers:', Object.fromEntries(response.headers.entries()));
 
             if (!response.ok) {
                 const errorText = await response.text();
-                console.error('API Error:', errorText);
+                console.error('API Error response:', errorText);
                 throw new Error(`Failed to fetch products: ${response.status} ${errorText}`);
             }
 
+            console.log('Parsing response JSON...');
             const data = await response.json();
             console.log('Products loaded:', data.length, 'products');
+            console.log('Products data:', data);
             setProducts(data);
+            console.log('=== PRODUCTS FETCHING SUCCESS ===');
         } catch (err) {
-            console.error('Error fetching products:', err);
+            console.error('=== PRODUCTS FETCHING ERROR ===');
+            if (err instanceof Error) {
+                console.error('Error type:', err.constructor.name);
+                console.error('Error name:', err.name);
+                console.error('Error message:', err.message);
+                console.error('Error stack:', err.stack);
+            }
+            console.error('Full error object:', err);
+
             if (err instanceof Error) {
                 if (err.name === 'AbortError') {
                     setError('Request timeout - server is not responding');
+                } else if (err.message.includes('Load failed')) {
+                    setError('Network error - unable to connect to server');
                 } else {
                     setError(`Error: ${err.message}`);
                 }
@@ -109,6 +161,7 @@ export default function ProductenPage() {
                 setError('An unknown error occurred');
             }
         } finally {
+            console.log('Setting loading to false');
             setLoading(false);
         }
     };
