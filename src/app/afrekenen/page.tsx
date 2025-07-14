@@ -27,8 +27,6 @@ function PaymentForm({ totalPrice, customerInfo, cartItems, onPaymentComplete, o
     const elements = useElements();
     const [submitting, setSubmitting] = useState(false);
     const [isPaymentElementReady, setIsPaymentElementReady] = useState(false);
-    const router = useRouter();
-    const { clearCart } = useCart();
 
     const handlePayment = async () => {
         if (!stripe || !elements || !isPaymentElementReady) {
@@ -82,9 +80,8 @@ function PaymentForm({ totalPrice, customerInfo, cartItems, onPaymentComplete, o
 
                 if (orderResponse.ok) {
                     const order = await orderResponse.json();
-                    clearCart();
                     onPaymentComplete();
-                    router.push(`/bestelling-bevestigd?order=${order.id}`);
+                    window.location.href = `/bestelling-bevestigd?order=${order.id}`;
                 } else {
                     const errorData = await orderResponse.json();
                     if (errorData.error === 'Insufficient stock') {
