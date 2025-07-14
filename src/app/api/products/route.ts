@@ -3,6 +3,9 @@ import { getAllProducts, createProduct, updateProduct, deleteProduct, initDataba
 import { cookies } from 'next/headers';
 import jwt from 'jsonwebtoken';
 
+// Force dynamic rendering to prevent build-time evaluation
+export const dynamic = 'force-dynamic';
+
 interface Product {
     id: number;
     name: string;

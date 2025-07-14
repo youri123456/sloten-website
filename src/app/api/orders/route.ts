@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { createOrder, initDatabase } from '@/lib/database';
 
+// Force dynamic rendering to prevent build-time evaluation
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: Request) {
     try {
         // Initialize database if needed

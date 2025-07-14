@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { getAllOrders } from '@/lib/database';
 import jwt from 'jsonwebtoken';
 
+// Force dynamic rendering to prevent build-time evaluation
+export const dynamic = 'force-dynamic';
+
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-here';
 
 function verifyToken(request: Request) {

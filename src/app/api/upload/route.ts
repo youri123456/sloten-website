@@ -4,6 +4,9 @@ import path from 'path';
 import { cookies } from 'next/headers';
 import jwt from 'jsonwebtoken';
 
+// Force dynamic rendering to prevent build-time evaluation
+export const dynamic = 'force-dynamic';
+
 // Check if user is authenticated admin
 async function isAuthenticated(): Promise<boolean> {
     try {

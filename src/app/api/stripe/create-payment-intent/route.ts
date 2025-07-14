@@ -1,9 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-    apiVersion: '2025-06-30.basil',
-});
+// Force dynamic rendering to prevent build-time evaluation
+export const dynamic = 'force-dynamic';
+
+// Initialize Stripe only when needed
+function getStripe() {
+    const secretKey = process.env.STRIPE_SECRET_KEY;
+    if (!secretKey) {
+        throw new Error('STRIPE_SECRET_KEY is not configured');
+    }
+    return new Stripe(secretKey, {
+        apiVersion: '2025-06-30.basil',
+    });
+}
 
 export async function POST(request: NextRequest) {
     try {
@@ -17,6 +27,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Create payment intent with explicit payment methods including iDEAL
+        const stripe = getStripe();
         const paymentIntent = await stripe.paymentIntents.create({
             amount: Math.round(amount * 100), // Stripe uses cents
             currency,
