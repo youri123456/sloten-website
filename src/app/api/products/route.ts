@@ -1,22 +1,11 @@
 import { NextResponse } from 'next/server';
-import { getAllProducts, createProduct, updateProduct, deleteProduct, initDatabase } from '@/lib/database';
+import { createProduct, updateProduct, deleteProduct, initDatabase } from '@/lib/database';
+import { getAllProducts as getStaticProducts, Product } from '@/data/products';
 import { cookies } from 'next/headers';
 import jwt from 'jsonwebtoken';
 
 // Force dynamic rendering to prevent build-time evaluation
 export const dynamic = 'force-dynamic';
-
-interface Product {
-    id: number;
-    name: string;
-    description: string;
-    price: number;
-    image: string;
-    category: string;
-    stock: number;
-    features: string | string[];
-    created_at: string;
-}
 
 // Check if user is authenticated admin
 async function isAuthenticated(): Promise<boolean> {
@@ -73,18 +62,12 @@ export async function GET() {
             return NextResponse.json(fallbackProducts);
         }
 
-        console.log('[PRODUCTS API] Fetching products...');
-        const products = await getAllProducts();
+        console.log('[PRODUCTS API] Fetching static products...');
+        const products = getStaticProducts();
         console.log('[PRODUCTS API] Raw products:', products.length, 'products');
 
-        // Parse the features JSON string for each product
-        const parsedProducts = products.map((product: Product) => ({
-            ...product,
-            features: typeof product.features === 'string' ? JSON.parse(product.features || '[]') : product.features
-        }));
-
-        console.log('[PRODUCTS API] Returning', parsedProducts.length, 'products');
-        return NextResponse.json(parsedProducts);
+        console.log('[PRODUCTS API] Returning', products.length, 'products');
+        return NextResponse.json(products);
     } catch (error) {
         console.error('[PRODUCTS API] Error fetching products:', error);
         return NextResponse.json({

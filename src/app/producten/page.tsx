@@ -7,18 +7,7 @@ import { Shield, Star, Check } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import { useToast } from '../../contexts/ToastContext';
 import Header from '../../components/Header';
-
-interface Product {
-    id: number;
-    name: string;
-    description: string;
-    price: number;
-    image: string;
-    category: string;
-    stock: number;
-    features: string[];
-    created_at: string;
-}
+import { Product } from '../../data/products';
 
 export default function ProductenPage() {
     const [products, setProducts] = useState<Product[]>([]);
