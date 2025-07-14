@@ -1,11 +1,10 @@
-import sqlite3 from 'sqlite3';
 import { Database } from 'sqlite3';
 
 const db = new Database('./webshop.db');
 
 // Initialize database tables
 export const initDatabase = () => {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         db.serialize(() => {
             // Products table
             db.run(`CREATE TABLE IF NOT EXISTS products (
@@ -74,21 +73,33 @@ export const initDatabase = () => {
     });
 };
 
+interface Product {
+    id: number;
+    name: string;
+    description: string;
+    price: number;
+    image: string;
+    category: string;
+    stock: number;
+    features: string;
+    created_at: string;
+}
+
 // Database query functions
-export const getAllProducts = (): Promise<any[]> => {
+export const getAllProducts = (): Promise<Product[]> => {
     return new Promise((resolve, reject) => {
         db.all("SELECT * FROM products ORDER BY id", (err, rows) => {
             if (err) reject(err);
-            else resolve(rows);
+            else resolve(rows as Product[]);
         });
     });
 };
 
-export const getProductById = (id: number): Promise<any> => {
+export const getProductById = (id: number): Promise<Product | undefined> => {
     return new Promise((resolve, reject) => {
         db.get("SELECT * FROM products WHERE id = ?", [id], (err, row) => {
             if (err) reject(err);
-            else resolve(row);
+            else resolve(row as Product | undefined);
         });
     });
 };
@@ -97,10 +108,10 @@ export const getProductById = (id: number): Promise<any> => {
 export const checkProductStock = (products: { id: number; quantity: number }[]): Promise<{ sufficient: boolean; insufficientProducts: string[] }> => {
     return new Promise((resolve, reject) => {
         let completed = 0;
-        let insufficientProducts: string[] = [];
+        const insufficientProducts: string[] = [];
 
         products.forEach(({ id, quantity }) => {
-            db.get("SELECT name, stock FROM products WHERE id = ?", [id], (err, row: any) => {
+            db.get("SELECT name, stock FROM products WHERE id = ?", [id], (err, row: { name: string; stock: number } | undefined) => {
                 if (err) {
                     reject(err);
                     return;
@@ -145,7 +156,7 @@ export const reduceProductStock = (products: { id: number; quantity: number }[])
                 console.log(`[REDUCE STOCK] Reducing stock for product ${id} by ${quantity}`);
 
                 // First, get current stock
-                db.get("SELECT stock FROM products WHERE id = ?", [id], (err, row: any) => {
+                db.get("SELECT stock FROM products WHERE id = ?", [id], (err, row: { stock: number } | undefined) => {
                     if (err) {
                         console.error(`[REDUCE STOCK] Error getting current stock for product ${id}:`, err);
                         hasError = true;
@@ -158,7 +169,7 @@ export const reduceProductStock = (products: { id: number; quantity: number }[])
 
                     db.run("UPDATE products SET stock = stock - ? WHERE id = ? AND stock >= ?",
                         [quantity, id, quantity],
-                        function (err: any) {
+                        function (err: Error | null) {
                             if (err || this.changes === 0) {
                                 console.error('[REDUCE STOCK] Stock reduction failed for product:', id, 'quantity:', quantity, 'changes:', this.changes, 'error:', err);
                                 hasError = true;
@@ -175,7 +186,7 @@ export const reduceProductStock = (products: { id: number; quantity: number }[])
                                     });
                                 } else {
                                     console.log('[REDUCE STOCK] Committing transaction');
-                                    db.run("COMMIT", (err: any) => {
+                                    db.run("COMMIT", (err: Error | null) => {
                                         if (err) reject(err);
                                         else resolve();
                                     });
@@ -206,7 +217,7 @@ interface OrderData {
 
 export const createOrder = (orderData: OrderData): Promise<number> => {
     return new Promise((resolve, reject) => {
-        const { customer_name, customer_email, customer_phone, customer_address, customer_city, customer_postal_code, total_amount, order_items, payment_intent_id } = orderData;
+        const { payment_intent_id } = orderData;
 
         // Check if order with this payment intent already exists
         if (payment_intent_id) {
