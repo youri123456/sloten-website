@@ -1,0 +1,16 @@
+{
+    "name": "SmartLock Store",
+    "short_name": "SmartLock",
+    "description": "Jouw betrouwbare partner voor innovatieve slottechnologie",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#2563eb",
+    "icons": [
+        {
+            "src": "/images/favicon.ico",
+            "sizes": "any",
+            "type": "image/x-icon"
+        }
+    ]
+}

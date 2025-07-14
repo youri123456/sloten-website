@@ -28,14 +28,48 @@ export default function ProductenPage() {
     const { addToast } = useToast();
 
     useEffect(() => {
-        fetchProducts();
+        const loadProducts = async () => {
+            let retries = 3;
+            while (retries > 0) {
+                try {
+                    await fetchProducts();
+                    break; // Success, exit retry loop
+                } catch (error) {
+                    retries--;
+                    if (retries === 0) {
+                        console.error('All retries failed');
+                        setError('Failed to load products after multiple attempts');
+                        setLoading(false);
+                    } else {
+                        console.log(`Retry ${3 - retries}/3 in 2 seconds...`);
+                        await new Promise(resolve => setTimeout(resolve, 2000));
+                    }
+                }
+            }
+        };
+
+        loadProducts();
     }, []);
 
     const fetchProducts = async () => {
         try {
             console.log('Fetching products...');
-            const response = await fetch('/api/products');
+
+            // Add timeout to prevent hanging requests
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
+            const response = await fetch('/api/products', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                signal: controller.signal,
+            });
+
+            clearTimeout(timeoutId);
             console.log('Response status:', response.status);
+            console.log('Response headers:', Object.fromEntries(response.headers.entries()));
 
             if (!response.ok) {
                 const errorText = await response.text();
@@ -48,7 +82,15 @@ export default function ProductenPage() {
             setProducts(data);
         } catch (err) {
             console.error('Error fetching products:', err);
-            setError(err instanceof Error ? err.message : 'An error occurred');
+            if (err instanceof Error) {
+                if (err.name === 'AbortError') {
+                    setError('Request timeout - server is not responding');
+                } else {
+                    setError(`Error: ${err.message}`);
+                }
+            } else {
+                setError('An unknown error occurred');
+            }
         } finally {
             setLoading(false);
         }
