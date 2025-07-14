@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link'
+import Image from 'next/image'
 import { Shield, Smartphone, Zap, Star } from 'lucide-react'
 import Header from '../components/Header'
 
@@ -132,9 +133,11 @@ export default function Home() {
                 <div key={product.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
                   <div className="h-64 bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center">
                     {product.image && product.image !== '/images/default-product.jpg' ? (
-                      <img
+                      <Image
                         src={product.image}
                         alt={product.name}
+                        width={400}
+                        height={300}
                         className="w-full h-full object-cover"
                       />
                     ) : (

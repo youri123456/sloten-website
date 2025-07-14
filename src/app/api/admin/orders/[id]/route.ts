@@ -20,7 +20,7 @@ function verifyToken(request: Request) {
 
 export async function PUT(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         // Verify admin token
@@ -30,7 +30,8 @@ export async function PUT(
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const orderId = parseInt(params.id);
+        const resolvedParams = await params;
+        const orderId = parseInt(resolvedParams.id);
         const { status } = await request.json();
 
         if (isNaN(orderId)) {

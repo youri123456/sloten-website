@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { Shield, Package, Plus, Edit, Trash2, LogOut, Save, X, ArrowLeft } from 'lucide-react';
 import { useToast } from '../../../contexts/ToastContext';
 
@@ -316,9 +317,11 @@ export default function AdminProductsPage() {
                                 <div key={product.id} className="bg-white rounded-xl shadow-lg overflow-hidden">
                                     <div className="h-48 bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
                                         {product.image && product.image !== '/images/default-product.jpg' ? (
-                                            <img
+                                            <Image
                                                 src={product.image}
                                                 alt={product.name}
+                                                width={400}
+                                                height={300}
                                                 className="w-full h-full object-cover"
                                             />
                                         ) : (
@@ -473,9 +476,11 @@ export default function AdminProductsPage() {
                                 <div className="space-y-4">
                                     {formData.image && (
                                         <div className="relative">
-                                            <img
+                                            <Image
                                                 src={formData.image}
                                                 alt="Product preview"
+                                                width={128}
+                                                height={128}
                                                 className="w-32 h-32 object-cover rounded-lg border border-gray-300"
                                             />
                                             <button

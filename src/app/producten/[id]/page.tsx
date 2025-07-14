@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Shield, Star, Check, ArrowLeft, Plus, Minus, Smartphone } from 'lucide-react';
 import { useCart } from '../../../contexts/CartContext';
 import { useToast } from '../../../contexts/ToastContext';
@@ -128,9 +129,11 @@ export default function ProductDetailPage() {
                     <div className="bg-white rounded-xl shadow-lg overflow-hidden">
                         <div className="h-96 bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
                             {product.image && product.image !== '/images/default-product.jpg' ? (
-                                <img
+                                <Image
                                     src={product.image}
                                     alt={product.name}
+                                    width={400}
+                                    height={400}
                                     className="w-full h-full object-cover"
                                 />
                             ) : (
