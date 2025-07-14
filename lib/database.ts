@@ -1,11 +1,105 @@
-import sqlite3 from 'sqlite3';
 import { Database } from 'sqlite3';
+
+// TypeScript interfaces
+interface Product {
+    id: number;
+    name: string;
+    description: string;
+    price: number;
+    image: string;
+    category: string;
+    stock: number;
+    features: string;
+    created_at: string;
+}
+
+interface Order {
+    id: number;
+    customer_name: string;
+    customer_email: string;
+    customer_phone: string;
+    customer_address: string;
+    customer_city: string;
+    customer_postal_code: string;
+    total_amount: number;
+    order_items: string;
+    status: string;
+    payment_intent_id: string;
+    created_at: string;
+}
+
+interface AdminUser {
+    id: number;
+    username: string;
+    password_hash: string;
+    created_at: string;
+}
+
+interface SiteVisit {
+    id: number;
+    visitor_ip: string;
+    user_agent: string;
+    page_path: string;
+    created_at: string;
+}
+
+interface ContactMessage {
+    id: number;
+    name: string;
+    email: string;
+    subject: string;
+    message: string;
+    status: string;
+    created_at: string;
+}
+
+interface SiteStats {
+    total_visits: number;
+    unique_visitors: number;
+    today_visits: number;
+    week_visits: number;
+    month_visits: number;
+}
+
+interface OrderItem {
+    id: number;
+    quantity: number;
+}
+
+interface OrderData {
+    customer_name: string;
+    customer_email: string;
+    customer_phone: string;
+    customer_address: string;
+    customer_city: string;
+    customer_postal_code: string;
+    total_amount: number;
+    order_items: OrderItem[];
+    payment_intent_id: string;
+}
+
+interface ProductData {
+    name: string;
+    description: string;
+    price: number;
+    image: string;
+    category: string;
+    stock: number;
+    features: string[];
+}
+
+interface MessageData {
+    name: string;
+    email: string;
+    subject: string;
+    message: string;
+}
 
 const db = new Database('./webshop.db');
 
 // Initialize database tables
-export const initDatabase = () => {
-    return new Promise((resolve, reject) => {
+export const initDatabase = (): Promise<boolean> => {
+    return new Promise((resolve) => {
         db.serialize(() => {
             // Products table
             db.run(`CREATE TABLE IF NOT EXISTS products (
@@ -75,20 +169,20 @@ export const initDatabase = () => {
 };
 
 // Database query functions
-export const getAllProducts = (): Promise<any[]> => {
+export const getAllProducts = (): Promise<Product[]> => {
     return new Promise((resolve, reject) => {
         db.all("SELECT * FROM products ORDER BY id", (err, rows) => {
             if (err) reject(err);
-            else resolve(rows);
+            else resolve(rows as Product[]);
         });
     });
 };
 
-export const getProductById = (id: number): Promise<any> => {
+export const getProductById = (id: number): Promise<Product | undefined> => {
     return new Promise((resolve, reject) => {
         db.get("SELECT * FROM products WHERE id = ?", [id], (err, row) => {
             if (err) reject(err);
-            else resolve(row);
+            else resolve(row as Product | undefined);
         });
     });
 };
@@ -105,7 +199,7 @@ export const reduceProductStock = (products: { id: number; quantity: number }[])
             products.forEach(({ id, quantity }) => {
                 db.run("UPDATE products SET stock = stock - ? WHERE id = ? AND stock >= ?",
                     [quantity, id, quantity],
-                    function (err: any) {
+                    function (err: Error | null) {
                         if (err || this.changes === 0) {
                             hasError = true;
                         }
@@ -117,7 +211,7 @@ export const reduceProductStock = (products: { id: number; quantity: number }[])
                                     reject(new Error("Insufficient stock for one or more products"));
                                 });
                             } else {
-                                db.run("COMMIT", (err: any) => {
+                                db.run("COMMIT", (err: Error | null) => {
                                     if (err) reject(err);
                                     else resolve();
                                 });
@@ -129,12 +223,12 @@ export const reduceProductStock = (products: { id: number; quantity: number }[])
     });
 };
 
-export const createOrder = (orderData: any): Promise<number> => {
+export const createOrder = (orderData: OrderData): Promise<number> => {
     return new Promise((resolve, reject) => {
         const { customer_name, customer_email, customer_phone, customer_address, customer_city, customer_postal_code, total_amount, order_items, payment_intent_id } = orderData;
 
         // First, reduce stock for all products
-        const stockReductions = order_items.map((item: any) => ({
+        const stockReductions = order_items.map((item: OrderItem) => ({
             id: item.id,
             quantity: item.quantity
         }));
@@ -145,7 +239,7 @@ export const createOrder = (orderData: any): Promise<number> => {
                 db.run(`INSERT INTO orders (customer_name, customer_email, customer_phone, customer_address, customer_city, customer_postal_code, total_amount, order_items, payment_intent_id) 
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                     [customer_name, customer_email, customer_phone, customer_address, customer_city, customer_postal_code, total_amount, JSON.stringify(order_items), payment_intent_id],
-                    function (err: any) {
+                    function (err: Error | null) {
                         if (err) reject(err);
                         else resolve(this.lastID);
                     });
@@ -156,11 +250,11 @@ export const createOrder = (orderData: any): Promise<number> => {
     });
 };
 
-export const getAllOrders = (): Promise<any[]> => {
+export const getAllOrders = (): Promise<Order[]> => {
     return new Promise((resolve, reject) => {
         db.all("SELECT * FROM orders ORDER BY created_at DESC", (err, rows) => {
             if (err) reject(err);
-            else resolve(rows);
+            else resolve(rows as Order[]);
         });
     });
 };
@@ -174,11 +268,11 @@ export const updateOrderStatus = (orderId: number, status: string): Promise<void
     });
 };
 
-export const getAdminUser = (username: string): Promise<any> => {
+export const getAdminUser = (username: string): Promise<AdminUser | undefined> => {
     return new Promise((resolve, reject) => {
         db.get("SELECT * FROM admin_users WHERE username = ?", [username], (err, row) => {
             if (err) reject(err);
-            else resolve(row);
+            else resolve(row as AdminUser | undefined);
         });
     });
 };
@@ -193,7 +287,7 @@ export const logSiteVisit = (visitorIp: string, userAgent: string, pagePath: str
     });
 };
 
-export const getSiteStats = (): Promise<any> => {
+export const getSiteStats = (): Promise<SiteStats> => {
     return new Promise((resolve, reject) => {
         db.all(`SELECT 
               COUNT(*) as total_visits,
@@ -203,13 +297,13 @@ export const getSiteStats = (): Promise<any> => {
               COUNT(CASE WHEN DATE(created_at) >= DATE('now', '-30 days') THEN 1 END) as month_visits
             FROM site_visits`, (err, rows) => {
             if (err) reject(err);
-            else resolve(rows[0] || { total_visits: 0, unique_visitors: 0, today_visits: 0, week_visits: 0, month_visits: 0 });
+            else resolve((rows[0] as SiteStats) || { total_visits: 0, unique_visitors: 0, today_visits: 0, week_visits: 0, month_visits: 0 });
         });
     });
 };
 
 // Product CRUD functions
-export const createProduct = (productData: any): Promise<number> => {
+export const createProduct = (productData: ProductData): Promise<number> => {
     return new Promise((resolve, reject) => {
         const { name, description, price, image, category, stock, features } = productData;
 
@@ -223,7 +317,7 @@ export const createProduct = (productData: any): Promise<number> => {
     });
 };
 
-export const updateProduct = (id: number, productData: any): Promise<void> => {
+export const updateProduct = (id: number, productData: ProductData): Promise<void> => {
     return new Promise((resolve, reject) => {
         const { name, description, price, image, category, stock, features } = productData;
 
@@ -248,7 +342,7 @@ export const deleteProduct = (id: number): Promise<void> => {
 };
 
 // Contact messages functions
-export const createContactMessage = (messageData: any): Promise<number> => {
+export const createContactMessage = (messageData: MessageData): Promise<number> => {
     return new Promise((resolve, reject) => {
         const { name, email, subject, message } = messageData;
 
@@ -262,11 +356,11 @@ export const createContactMessage = (messageData: any): Promise<number> => {
     });
 };
 
-export const getAllContactMessages = (): Promise<any[]> => {
+export const getAllContactMessages = (): Promise<ContactMessage[]> => {
     return new Promise((resolve, reject) => {
         db.all("SELECT * FROM contact_messages ORDER BY created_at DESC", (err, rows) => {
             if (err) reject(err);
-            else resolve(rows);
+            else resolve(rows as ContactMessage[]);
         });
     });
 };
