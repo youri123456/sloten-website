@@ -7,7 +7,7 @@ import { Shield, Star, Check } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import { useToast } from '../../contexts/ToastContext';
 import Header from '../../components/Header';
-import { Product } from '../../data/products';
+import { Product, getAllProducts } from '../../data/products';
 
 export default function ProductenPage() {
     const [products, setProducts] = useState<Product[]>([]);
@@ -17,143 +17,21 @@ export default function ProductenPage() {
     const { addToast } = useToast();
 
     useEffect(() => {
-        const loadProducts = async () => {
-            let retries = 3;
-            while (retries > 0) {
-                try {
-                    await fetchProducts();
-                    break; // Success, exit retry loop
-                } catch (error) {
-                    console.error('Retry attempt failed:', error);
-                    retries--;
-                    if (retries === 0) {
-                        console.error('All retries failed');
-                        setError('Failed to load products after multiple attempts');
-                        setLoading(false);
-                    } else {
-                        console.log(`Retry ${3 - retries}/3 in 2 seconds...`);
-                        await new Promise(resolve => setTimeout(resolve, 2000));
-                    }
-                }
-            }
-        };
-
-        loadProducts();
-    }, []);
-
-    const fetchProducts = async () => {
+        // Load products directly from static data
         try {
-            console.log('=== PRODUCTS FETCHING START ===');
-            console.log('Current URL:', window.location.href);
-            console.log('User Agent:', navigator.userAgent);
-            console.log('Online status:', navigator.onLine);
-
-            // Test basic fetch functionality
-            console.log('Testing basic fetch...');
-            try {
-                const basicTest = await fetch('/api/test', { method: 'GET' });
-                console.log('Basic fetch test status:', basicTest.status);
-                console.log('Basic fetch test ok:', basicTest.ok);
-            } catch (basicError) {
-                console.error('Basic fetch test failed:', basicError);
-            }
-
-            // First test if API is working
-            console.log('Testing API connectivity...');
-            let testResponse;
-            try {
-                testResponse = await fetch('/api/test', {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                });
-                console.log('Test API response status:', testResponse.status);
-                console.log('Test API response ok:', testResponse.ok);
-            } catch (testError) {
-                console.error('Test API fetch failed:', testError);
-                const errorMessage = testError instanceof Error ? testError.message : 'Unknown error';
-                throw new Error(`Test API failed: ${errorMessage}`);
-            }
-
-            if (!testResponse.ok) {
-                const testErrorText = await testResponse.text();
-                console.error('Test API error response:', testErrorText);
-                throw new Error(`API test failed: ${testResponse.status} - ${testErrorText}`);
-            }
-
-            const testData = await testResponse.json();
-            console.log('API test result:', testData);
-
-            // Now try to fetch products
-            console.log('Fetching products from API...');
-
-            // Add timeout to prevent hanging requests
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => {
-                console.log('Request timeout triggered');
-                controller.abort();
-            }, 10000); // 10 second timeout
-
-            let response;
-            try {
-                response = await fetch('/api/products', {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    signal: controller.signal,
-                });
-                console.log('Products API response received');
-            } catch (fetchError) {
-                console.error('Products API fetch failed:', fetchError);
-                clearTimeout(timeoutId);
-                throw fetchError;
-            }
-
-            clearTimeout(timeoutId);
-            console.log('Response status:', response.status);
-            console.log('Response ok:', response.ok);
-            console.log('Response headers:', Object.fromEntries(response.headers.entries()));
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error('API Error response:', errorText);
-                throw new Error(`Failed to fetch products: ${response.status} ${errorText}`);
-            }
-
-            console.log('Parsing response JSON...');
-            const data = await response.json();
-            console.log('Products loaded:', data.length, 'products');
-            console.log('Products data:', data);
-            setProducts(data);
-            console.log('=== PRODUCTS FETCHING SUCCESS ===');
-        } catch (err) {
-            console.error('=== PRODUCTS FETCHING ERROR ===');
-            if (err instanceof Error) {
-                console.error('Error type:', err.constructor.name);
-                console.error('Error name:', err.name);
-                console.error('Error message:', err.message);
-                console.error('Error stack:', err.stack);
-            }
-            console.error('Full error object:', err);
-
-            if (err instanceof Error) {
-                if (err.name === 'AbortError') {
-                    setError('Request timeout - server is not responding');
-                } else if (err.message.includes('Load failed')) {
-                    setError('Network error - unable to connect to server');
-                } else {
-                    setError(`Error: ${err.message}`);
-                }
-            } else {
-                setError('An unknown error occurred');
-            }
-        } finally {
-            console.log('Setting loading to false');
+            console.log('Loading products from static data...');
+            const staticProducts = getAllProducts();
+            console.log('Static products loaded:', staticProducts.length, 'products');
+            setProducts(staticProducts);
+            setLoading(false);
+        } catch (error) {
+            console.error('Error loading static products:', error);
+            setError('Failed to load products');
             setLoading(false);
         }
-    };
+    }, []);
+
+
 
     const handleAddToCart = (product: Product) => {
         addToCart(product);
