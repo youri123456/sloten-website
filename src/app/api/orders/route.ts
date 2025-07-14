@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server';
-import { createOrder } from '@/lib/database';
+import { createOrder, initDatabase } from '@/lib/database';
 
 export async function POST(request: Request) {
     try {
+        // Initialize database if needed
+        await initDatabase();
+
         const orderData = await request.json();
 
         console.log(`[ORDERS API] POST request received:`, {

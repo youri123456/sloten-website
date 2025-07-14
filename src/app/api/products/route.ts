@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getAllProducts, createProduct, updateProduct, deleteProduct } from '@/lib/database';
+import { getAllProducts, createProduct, updateProduct, deleteProduct, initDatabase } from '@/lib/database';
 import { cookies } from 'next/headers';
 import jwt from 'jsonwebtoken';
 
@@ -32,6 +32,9 @@ async function isAuthenticated(): Promise<boolean> {
 
 export async function GET() {
     try {
+        // Initialize database if needed
+        await initDatabase();
+
         const products = await getAllProducts();
 
         // Parse the features JSON string for each product
