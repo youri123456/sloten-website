@@ -25,7 +25,7 @@ function PaymentForm({ totalPrice, customerInfo, cartItems, onPaymentComplete, o
     const stripe = useStripe();
     const elements = useElements();
     const [submitting, setSubmitting] = useState(false);
-    const [isPaymentElementReady, setIsPaymentElementReady] = useState(false);
+
 
     const handlePayment = async () => {
         if (!stripe || !elements) {
@@ -114,7 +114,6 @@ function PaymentForm({ totalPrice, customerInfo, cartItems, onPaymentComplete, o
                 </label>
                 <div className="border border-gray-300 rounded-lg p-4">
                     <PaymentElement
-                        onReady={() => setIsPaymentElementReady(true)}
                         options={{
                             layout: 'accordion',
                             paymentMethodOrder: ['card', 'ideal', 'bancontact', 'sofort']

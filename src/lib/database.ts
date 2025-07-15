@@ -123,7 +123,7 @@ const staticProducts: Product[] = [
 ];
 
 // In-memory storage for orders and messages (will reset on server restart)
-let orders: Order[] = [
+const orders: Order[] = [
     {
         id: 1,
         customer_name: 'Jan Jansen',
@@ -154,7 +154,7 @@ let orders: Order[] = [
     }
 ];
 
-let contactMessages: ContactMessage[] = [
+const contactMessages: ContactMessage[] = [
     {
         id: 1,
         name: 'Anna de Vries',
@@ -175,15 +175,9 @@ let contactMessages: ContactMessage[] = [
     }
 ];
 
-let siteVisits: { id: number; visitor_ip: string; user_agent: string; page_path: string; created_at: string }[] = [];
+const siteVisits: { id: number; visitor_ip: string; user_agent: string; page_path: string; created_at: string }[] = [];
 
-const staticSiteStats: SiteStats = {
-    total_visits: 1250,
-    unique_visitors: 890,
-    today_visits: 45,
-    week_visits: 320,
-    month_visits: 1250
-};
+
 
 // Initialize database (no-op for static data)
 export const initDatabase = (): Promise<boolean> => {
@@ -246,7 +240,7 @@ export const createOrder = (orderData: OrderData): Promise<number> => {
             created_at: new Date().toISOString()
         };
 
-        orders.push(newOrder);
+        (orders as Order[]).push(newOrder);
         console.log('[DATABASE] createOrder - new order created with ID:', newOrderId);
         resolve(newOrderId);
     });
@@ -255,13 +249,13 @@ export const createOrder = (orderData: OrderData): Promise<number> => {
 export const getAllOrders = (): Promise<Order[]> => {
     return new Promise((resolve) => {
         console.log('[DATABASE] getAllOrders - returning orders');
-        resolve([...orders]);
+        resolve([...(orders as Order[])]);
     });
 };
 
 export const updateOrderStatus = (orderId: number, status: string): Promise<void> => {
     return new Promise((resolve) => {
-        const order = orders.find(o => o.id === orderId);
+        const order = (orders as Order[]).find(o => o.id === orderId);
         if (order) {
             order.status = status;
             console.log('[DATABASE] updateOrderStatus - order', orderId, 'updated to', status);
@@ -289,13 +283,13 @@ export const getAdminUser = (username: string): Promise<AdminUser | undefined> =
 export const logSiteVisit = (visitorIp: string, userAgent: string, pagePath: string): Promise<void> => {
     return new Promise((resolve) => {
         const newVisit = {
-            id: Math.max(...siteVisits.map(v => v.id), 0) + 1,
+            id: Math.max(...(siteVisits as any[]).map(v => v.id), 0) + 1,
             visitor_ip: visitorIp,
             user_agent: userAgent,
             page_path: pagePath,
             created_at: new Date().toISOString()
         };
-        siteVisits.push(newVisit);
+        (siteVisits as any[]).push(newVisit);
         console.log('[DATABASE] logSiteVisit - visit logged');
         resolve();
     });
@@ -309,13 +303,14 @@ export const getSiteStats = (): Promise<SiteStats> => {
         const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
         const monthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-        const uniqueIPs = new Set(siteVisits.map(v => v.visitor_ip));
-        const todayVisits = siteVisits.filter(v => new Date(v.created_at) >= today).length;
-        const weekVisits = siteVisits.filter(v => new Date(v.created_at) >= weekAgo).length;
-        const monthVisits = siteVisits.filter(v => new Date(v.created_at) >= monthAgo).length;
+        const visitsArray = siteVisits as any[];
+        const uniqueIPs = new Set(visitsArray.map(v => v.visitor_ip));
+        const todayVisits = visitsArray.filter(v => new Date(v.created_at) >= today).length;
+        const weekVisits = visitsArray.filter(v => new Date(v.created_at) >= weekAgo).length;
+        const monthVisits = visitsArray.filter(v => new Date(v.created_at) >= monthAgo).length;
 
         const stats: SiteStats = {
-            total_visits: siteVisits.length,
+            total_visits: visitsArray.length,
             unique_visitors: uniqueIPs.size,
             today_visits: todayVisits,
             week_visits: weekVisits,
@@ -342,7 +337,7 @@ export const createProduct = (productData: ProductData): Promise<number> => {
             created_at: new Date().toISOString()
         };
 
-        staticProducts.push(newProduct);
+        (staticProducts as Product[]).push(newProduct);
         console.log('[DATABASE] createProduct - new product created with ID:', newProductId);
         resolve(newProductId);
     });
@@ -350,7 +345,7 @@ export const createProduct = (productData: ProductData): Promise<number> => {
 
 export const updateProduct = (id: number, productData: ProductData): Promise<void> => {
     return new Promise((resolve) => {
-        const product = staticProducts.find(p => p.id === id);
+        const product = (staticProducts as Product[]).find(p => p.id === id);
         if (product) {
             product.name = productData.name;
             product.description = productData.description;
@@ -367,9 +362,9 @@ export const updateProduct = (id: number, productData: ProductData): Promise<voi
 
 export const deleteProduct = (id: number): Promise<void> => {
     return new Promise((resolve) => {
-        const index = staticProducts.findIndex(p => p.id === id);
+        const index = (staticProducts as Product[]).findIndex(p => p.id === id);
         if (index !== -1) {
-            staticProducts.splice(index, 1);
+            (staticProducts as Product[]).splice(index, 1);
             console.log('[DATABASE] deleteProduct - product', id, 'deleted');
         }
         resolve();
@@ -378,7 +373,7 @@ export const deleteProduct = (id: number): Promise<void> => {
 
 export const createContactMessage = (messageData: MessageData): Promise<number> => {
     return new Promise((resolve) => {
-        const newMessageId = Math.max(...contactMessages.map(m => m.id), 0) + 1;
+        const newMessageId = Math.max(...(contactMessages as ContactMessage[]).map(m => m.id), 0) + 1;
         const newMessage: ContactMessage = {
             id: newMessageId,
             name: messageData.name,
@@ -389,7 +384,7 @@ export const createContactMessage = (messageData: MessageData): Promise<number> 
             created_at: new Date().toISOString()
         };
 
-        contactMessages.push(newMessage);
+        (contactMessages as ContactMessage[]).push(newMessage);
         console.log('[DATABASE] createContactMessage - new message created with ID:', newMessageId);
         resolve(newMessageId);
     });
@@ -398,13 +393,13 @@ export const createContactMessage = (messageData: MessageData): Promise<number> 
 export const getAllContactMessages = (): Promise<ContactMessage[]> => {
     return new Promise((resolve) => {
         console.log('[DATABASE] getAllContactMessages - returning messages');
-        resolve([...contactMessages]);
+        resolve([...(contactMessages as ContactMessage[])]);
     });
 };
 
 export const updateContactMessageStatus = (messageId: number, status: string): Promise<void> => {
     return new Promise((resolve) => {
-        const message = contactMessages.find(m => m.id === messageId);
+        const message = (contactMessages as ContactMessage[]).find(m => m.id === messageId);
         if (message) {
             message.status = status;
             console.log('[DATABASE] updateContactMessageStatus - message', messageId, 'updated to', status);
