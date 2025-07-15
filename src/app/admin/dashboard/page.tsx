@@ -57,11 +57,21 @@ export default function AdminDashboard() {
 
     const fetchData = useCallback(async () => {
         try {
-            const [ordersResponse, analyticsResponse, contactResponse] = await Promise.all([
+            // Set a timeout to prevent hanging
+            const timeoutPromise = new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Timeout')), 5000)
+            );
+
+            const fetchPromise = Promise.all([
                 fetch('/api/admin/orders'),
                 fetch('/api/admin/analytics'),
                 fetch('/api/admin/contact')
             ]);
+
+            const [ordersResponse, analyticsResponse, contactResponse] = await Promise.race([
+                fetchPromise,
+                timeoutPromise
+            ]) as [Response, Response, Response];
 
             if (!ordersResponse.ok || !analyticsResponse.ok || !contactResponse.ok) {
                 if (ordersResponse.status === 401 || analyticsResponse.status === 401 || contactResponse.status === 401) {
@@ -78,8 +88,9 @@ export default function AdminDashboard() {
             setOrders(ordersData);
             setAnalytics(analyticsData);
             setContactMessages(contactData);
-        } catch {
-            setError('Failed to load dashboard data');
+        } catch (error) {
+            console.error('Dashboard fetch error:', error);
+            setError('Admin dashboard werkt alleen lokaal. Database is niet beschikbaar op Vercel.');
         } finally {
             setLoading(false);
         }
@@ -202,10 +213,45 @@ export default function AdminDashboard() {
 
     if (error) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-                <div className="text-center">
-                    <Shield className="h-24 w-24 text-red-500 mx-auto mb-4" />
-                    <p className="text-xl text-red-600">{error}</p>
+            <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+                {/* Header */}
+                <header className="bg-white shadow-sm border-b border-gray-200">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex items-center justify-between h-16">
+                            <div className="flex items-center">
+                                <Shield className="h-8 w-8 text-blue-600 mr-3" />
+                                <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+                            </div>
+                            <div className="flex items-center space-x-4">
+                                <button
+                                    onClick={handleLogout}
+                                    className="flex items-center px-4 py-2 text-gray-700 hover:text-red-600 transition-colors"
+                                >
+                                    <LogOut className="h-5 w-5 mr-2" />
+                                    Logout
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+
+                <div className="flex items-center justify-center min-h-[60vh]">
+                    <div className="text-center max-w-md mx-auto">
+                        <Shield className="h-24 w-24 text-orange-500 mx-auto mb-6" />
+                        <h2 className="text-2xl font-bold text-gray-900 mb-4">Admin Dashboard</h2>
+                        <p className="text-gray-600 mb-6">{error}</p>
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                            <p className="text-sm text-blue-800">
+                                <strong>Tip:</strong> Voor volledige admin functionaliteit, run de webshop lokaal met <code className="bg-blue-100 px-2 py-1 rounded">npm run dev</code>
+                            </p>
+                        </div>
+                        <button
+                            onClick={() => window.location.href = '/'}
+                            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+                        >
+                            Terug naar webshop
+                        </button>
+                    </div>
                 </div>
             </div>
         );
