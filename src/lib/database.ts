@@ -85,6 +85,14 @@ interface MessageData {
     message: string;
 }
 
+interface SiteVisit {
+    id: number;
+    visitor_ip: string;
+    user_agent: string;
+    page_path: string;
+    created_at: string;
+}
+
 // Static data for Vercel deployment
 const staticProducts: Product[] = [
     {
@@ -175,7 +183,7 @@ const contactMessages: ContactMessage[] = [
     }
 ];
 
-const siteVisits: { id: number; visitor_ip: string; user_agent: string; page_path: string; created_at: string }[] = [];
+const siteVisits: SiteVisit[] = [];
 
 
 
@@ -282,14 +290,14 @@ export const getAdminUser = (username: string): Promise<AdminUser | undefined> =
 
 export const logSiteVisit = (visitorIp: string, userAgent: string, pagePath: string): Promise<void> => {
     return new Promise((resolve) => {
-        const newVisit = {
-            id: Math.max(...(siteVisits as any[]).map(v => v.id), 0) + 1,
+        const newVisit: SiteVisit = {
+            id: Math.max(...(siteVisits as SiteVisit[]).map(v => v.id), 0) + 1,
             visitor_ip: visitorIp,
             user_agent: userAgent,
             page_path: pagePath,
             created_at: new Date().toISOString()
         };
-        (siteVisits as any[]).push(newVisit);
+        (siteVisits as SiteVisit[]).push(newVisit);
         console.log('[DATABASE] logSiteVisit - visit logged');
         resolve();
     });
@@ -303,7 +311,7 @@ export const getSiteStats = (): Promise<SiteStats> => {
         const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
         const monthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-        const visitsArray = siteVisits as any[];
+        const visitsArray = siteVisits as SiteVisit[];
         const uniqueIPs = new Set(visitsArray.map(v => v.visitor_ip));
         const todayVisits = visitsArray.filter(v => new Date(v.created_at) >= today).length;
         const weekVisits = visitsArray.filter(v => new Date(v.created_at) >= weekAgo).length;
