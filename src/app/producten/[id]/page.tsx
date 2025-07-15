@@ -10,31 +10,7 @@ import { useToast } from '../../../contexts/ToastContext';
 import Header from '../../../components/Header';
 import { getProductById, Product } from '../../../data/products';
 
-// Fallback products in case import fails
-const fallbackProducts: Product[] = [
-    {
-        id: 1,
-        name: 'Smart Fietsslot Pro',
-        description: 'Revolutionair fietsslot dat je met je smartphone kunt openen.',
-        price: 89.99,
-        image: '/images/fietsslot.png',
-        category: 'fietsslot',
-        stock: 25,
-        features: ['Smartphone opening', 'Alarm functie', 'GPS tracking'],
-        created_at: '2025-07-12T18:08:13.000Z'
-    },
-    {
-        id: 2,
-        name: 'Smart Kabelslot Secure',
-        description: 'Flexibel kabelslot met smartphone bediening en alarm.',
-        price: 79.99,
-        image: '/images/kettingslot.png',
-        category: 'kabelslot',
-        stock: 30,
-        features: ['Smartphone opening', 'Alarm functie', 'Verstelbare kabel'],
-        created_at: '2025-07-12T18:08:13.000Z'
-    }
-];
+
 
 export default function ProductDetailPage() {
     const params = useParams();
@@ -66,7 +42,7 @@ export default function ProductDetailPage() {
                 setError('Product niet gevonden');
             }
             setLoading(false);
-        } catch (err) {
+        } catch {
             setError('Fout bij laden van product');
             setLoading(false);
         }
