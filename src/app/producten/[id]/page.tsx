@@ -8,18 +8,33 @@ import { Shield, Star, Check, ArrowLeft, Plus, Minus, Smartphone } from 'lucide-
 import { useCart } from '../../../contexts/CartContext';
 import { useToast } from '../../../contexts/ToastContext';
 import Header from '../../../components/Header';
+import { getProductById, Product } from '../../../data/products';
 
-interface Product {
-    id: number;
-    name: string;
-    description: string;
-    price: number;
-    image: string;
-    category: string;
-    stock: number;
-    features: string[];
-    created_at: string;
-}
+// Fallback products in case import fails
+const fallbackProducts: Product[] = [
+    {
+        id: 1,
+        name: 'Smart Fietsslot Pro',
+        description: 'Revolutionair fietsslot dat je met je smartphone kunt openen.',
+        price: 89.99,
+        image: '/images/fietsslot.png',
+        category: 'fietsslot',
+        stock: 25,
+        features: ['Smartphone opening', 'Alarm functie', 'GPS tracking'],
+        created_at: '2025-07-12T18:08:13.000Z'
+    },
+    {
+        id: 2,
+        name: 'Smart Kabelslot Secure',
+        description: 'Flexibel kabelslot met smartphone bediening en alarm.',
+        price: 79.99,
+        image: '/images/kettingslot.png',
+        category: 'kabelslot',
+        stock: 30,
+        features: ['Smartphone opening', 'Alarm functie', 'Verstelbare kabel'],
+        created_at: '2025-07-12T18:08:13.000Z'
+    }
+];
 
 export default function ProductDetailPage() {
     const params = useParams();
@@ -32,26 +47,27 @@ export default function ProductDetailPage() {
 
     useEffect(() => {
         if (params.id) {
-            fetchProduct(params.id as string);
+            loadProduct(params.id as string);
         }
     }, [params.id]);
 
-    const fetchProduct = async (id: string) => {
+    const loadProduct = (id: string) => {
         try {
-            const response = await fetch(`/api/products/${id}`);
-            if (!response.ok) {
-                if (response.status === 404) {
-                    setError('Product niet gevonden');
-                } else {
-                    throw new Error('Failed to fetch product');
-                }
-            } else {
-                const data = await response.json();
-                setProduct(data);
+            const productId = parseInt(id);
+            if (isNaN(productId)) {
+                setError('Ongeldig product ID');
+                setLoading(false);
+                return;
             }
+            const foundProduct = getProductById(productId);
+            if (foundProduct) {
+                setProduct(foundProduct);
+            } else {
+                setError('Product niet gevonden');
+            }
+            setLoading(false);
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'An error occurred');
-        } finally {
+            setError('Fout bij laden van product');
             setLoading(false);
         }
     };

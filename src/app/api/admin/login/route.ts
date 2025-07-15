@@ -1,6 +1,4 @@
 import { NextResponse } from 'next/server';
-import { getAdminUser } from '@/lib/database';
-import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 // Force dynamic rendering to prevent build-time evaluation
@@ -16,23 +14,14 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Username and password are required' }, { status: 400 });
         }
 
-        // Get admin user from database
-        const admin = await getAdminUser(username);
-
-        if (!admin) {
-            return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
-        }
-
-        // Check password
-        const isValid = await bcrypt.compare(password, admin.password_hash);
-
-        if (!isValid) {
+        // Hardcoded admin credentials for Vercel
+        if (username !== 'Youribrouwers' || password !== 'Youri.2003') {
             return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
         }
 
         // Generate JWT token
         const token = jwt.sign(
-            { userId: admin.id, username: admin.username },
+            { userId: 1, username: 'Youribrouwers' },
             JWT_SECRET,
             { expiresIn: '24h' }
         );
@@ -41,7 +30,7 @@ export async function POST(request: Request) {
         const response = NextResponse.json({
             success: true,
             message: 'Login successful',
-            user: { id: admin.id, username: admin.username }
+            user: { id: 1, username: 'Youribrouwers' }
         });
 
         // Set token as HTTP-only cookie
@@ -53,7 +42,6 @@ export async function POST(request: Request) {
         });
 
         return response;
-
     } catch (error) {
         console.error('Login error:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
-import { getProductById } from '@/lib/database';
+import { getProductById } from '@/data/products';
+
+// Force dynamic rendering to prevent build-time evaluation
+export const dynamic = 'force-dynamic';
 
 export async function GET(
     request: Request,
@@ -13,19 +16,13 @@ export async function GET(
             return NextResponse.json({ error: 'Invalid product ID' }, { status: 400 });
         }
 
-        const product = await getProductById(productId);
+        const product = getProductById(productId);
 
         if (!product) {
             return NextResponse.json({ error: 'Product not found' }, { status: 404 });
         }
 
-        // Parse the features JSON string
-        const parsedProduct = {
-            ...product,
-            features: JSON.parse(product.features || '[]')
-        };
-
-        return NextResponse.json(parsedProduct);
+        return NextResponse.json(product);
     } catch (error) {
         console.error('Error fetching product:', error);
         return NextResponse.json({ error: 'Failed to fetch product' }, { status: 500 });
