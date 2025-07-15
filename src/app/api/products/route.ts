@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createProduct, updateProduct, deleteProduct, initDatabase } from '@/lib/database';
-import { getAllProducts as getStaticProducts, Product } from '@/data/products';
+import { getAllProducts as getStaticProducts } from '@/data/products';
 import { cookies } from 'next/headers';
 import jwt from 'jsonwebtoken';
 

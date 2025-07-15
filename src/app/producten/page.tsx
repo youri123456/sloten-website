@@ -38,7 +38,6 @@ const fallbackProducts: Product[] = [
 export default function ProductenPage() {
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
     const { addToCart } = useCart();
     const { addToast } = useToast();
 
@@ -99,16 +98,7 @@ export default function ProductenPage() {
         );
     }
 
-    if (error) {
-        return (
-            <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-                <div className="text-center">
-                    <Shield className="h-24 w-24 text-red-500 mx-auto mb-4" />
-                    <p className="text-xl text-red-600">Error: {error}</p>
-                </div>
-            </div>
-        );
-    }
+
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
