@@ -90,7 +90,7 @@ export default function AdminDashboard() {
             setContactMessages(contactData);
         } catch (error) {
             console.error('Dashboard fetch error:', error);
-            setError('Admin dashboard werkt alleen lokaal. Database is niet beschikbaar op Vercel.');
+            setError('Er is een fout opgetreden bij het laden van het dashboard.');
         } finally {
             setLoading(false);
         }
@@ -240,11 +240,6 @@ export default function AdminDashboard() {
                         <Shield className="h-24 w-24 text-orange-500 mx-auto mb-6" />
                         <h2 className="text-2xl font-bold text-gray-900 mb-4">Admin Dashboard</h2>
                         <p className="text-gray-600 mb-6">{error}</p>
-                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-                            <p className="text-sm text-blue-800">
-                                <strong>Tip:</strong> Voor volledige admin functionaliteit, run de webshop lokaal met <code className="bg-blue-100 px-2 py-1 rounded">npm run dev</code>
-                            </p>
-                        </div>
                         <button
                             onClick={() => window.location.href = '/'}
                             className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"

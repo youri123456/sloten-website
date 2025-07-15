@@ -28,7 +28,14 @@ function PaymentForm({ totalPrice, customerInfo, cartItems, onPaymentComplete, o
     const [isPaymentElementReady, setIsPaymentElementReady] = useState(false);
 
     const handlePayment = async () => {
-        if (!stripe || !elements || !isPaymentElementReady) {
+        if (!stripe || !elements) {
+            onPaymentError('Stripe is nog niet geladen. Probeer het over een paar seconden opnieuw.');
+            return;
+        }
+
+        // Check if PaymentElement is mounted
+        const paymentElement = elements.getElement('payment');
+        if (!paymentElement) {
             onPaymentError('Betaalformulier is nog niet klaar. Probeer het over een paar seconden opnieuw.');
             return;
         }
@@ -61,7 +68,7 @@ function PaymentForm({ totalPrice, customerInfo, cartItems, onPaymentComplete, o
                     customer_postal_code: customerInfo.postal_code,
                     total_amount: totalPrice,
                     order_items: cartItems.map(item => ({
-                        id: item.id,  // Fixed: product_id -> id
+                        id: item.id,
                         quantity: item.quantity,
                         price: item.price
                     })),
@@ -109,7 +116,8 @@ function PaymentForm({ totalPrice, customerInfo, cartItems, onPaymentComplete, o
                     <PaymentElement
                         onReady={() => setIsPaymentElementReady(true)}
                         options={{
-                            layout: 'accordion'
+                            layout: 'accordion',
+                            paymentMethodOrder: ['card', 'ideal', 'bancontact', 'sofort']
                         }}
                     />
                 </div>
@@ -117,11 +125,11 @@ function PaymentForm({ totalPrice, customerInfo, cartItems, onPaymentComplete, o
 
             <button
                 onClick={handlePayment}
-                disabled={submitting || !stripe || !elements || !isPaymentElementReady}
+                disabled={submitting || !stripe || !elements}
                 className="w-full bg-green-600 text-white py-4 px-6 rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-semibold text-lg"
             >
                 {submitting ? 'Betaling verwerken...' :
-                    !isPaymentElementReady ? 'Betaalformulier laden...' :
+                    !stripe || !elements ? 'Betaalformulier laden...' :
                         `Betaal €${totalPrice.toFixed(2)}`}
             </button>
         </div>

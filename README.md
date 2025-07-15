@@ -17,12 +17,12 @@ Een moderne webshop voor smart locks gebouwd met Next.js 15, TypeScript, en Tail
 - **TypeScript** - Type-safe development
 - **Tailwind CSS** - Utility-first CSS framework
 - **Stripe** - Betalingsverwerking
-- **SQLite** - Lokale database (voor admin functionaliteit)
+- **Statische data** - In-memory database voor Vercel deployment
 - **Vercel** - Deployment platform
 
 ## Deployment Status
 
-✅ **Laatste update**: 14 juli 2025 - Statische producten data geïmplementeerd voor Vercel compatibiliteit
+✅ **Laatste update**: 14 juli 2025 - Volledig Vercel-compatibele versie met statische database
 
 ## Installatie
 
