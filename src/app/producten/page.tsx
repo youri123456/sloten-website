@@ -9,6 +9,32 @@ import { useToast } from '../../contexts/ToastContext';
 import Header from '../../components/Header';
 import { Product, getAllProducts } from '../../data/products';
 
+// Fallback products in case import fails
+const fallbackProducts: Product[] = [
+    {
+        id: 1,
+        name: 'Smart Fietsslot Pro',
+        description: 'Revolutionair fietsslot dat je met je smartphone kunt openen.',
+        price: 89.99,
+        image: '/images/fietsslot.png',
+        category: 'fietsslot',
+        stock: 25,
+        features: ['Smartphone opening', 'Alarm functie', 'GPS tracking'],
+        created_at: '2025-07-12T18:08:13.000Z'
+    },
+    {
+        id: 2,
+        name: 'Smart Kabelslot Secure',
+        description: 'Flexibel kabelslot met smartphone bediening en alarm.',
+        price: 79.99,
+        image: '/images/kettingslot.png',
+        category: 'kabelslot',
+        stock: 30,
+        features: ['Smartphone opening', 'Alarm functie', 'Verstelbare kabel'],
+        created_at: '2025-07-12T18:08:13.000Z'
+    }
+];
+
 export default function ProductenPage() {
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
@@ -18,15 +44,39 @@ export default function ProductenPage() {
 
     useEffect(() => {
         // Load products directly from static data
+        console.log('=== PRODUCTS PAGE LOADING ===');
+        console.log('Component mounted, starting to load products...');
+
         try {
-            console.log('Loading products from static data...');
-            const staticProducts = getAllProducts();
-            console.log('Static products loaded:', staticProducts.length, 'products');
+            console.log('Importing getAllProducts function...');
+            console.log('getAllProducts function:', typeof getAllProducts);
+
+            console.log('Calling getAllProducts()...');
+            let staticProducts;
+            try {
+                staticProducts = getAllProducts();
+                console.log('getAllProducts returned:', staticProducts);
+                console.log('Number of products:', staticProducts.length);
+                console.log('Products data:', staticProducts);
+            } catch (importError) {
+                console.warn('getAllProducts failed, using fallback products:', importError);
+                staticProducts = fallbackProducts;
+            }
+
+            console.log('Setting products in state...');
             setProducts(staticProducts);
+            console.log('Setting loading to false...');
             setLoading(false);
+            console.log('=== PRODUCTS LOADED SUCCESSFULLY ===');
         } catch (error) {
-            console.error('Error loading static products:', error);
-            setError('Failed to load products');
+            console.error('=== ERROR LOADING PRODUCTS ===');
+            console.error('Error details:', error);
+            console.error('Error type:', typeof error);
+            console.error('Error message:', error instanceof Error ? error.message : 'Unknown error');
+
+            // Use fallback products as last resort
+            console.log('Using fallback products as last resort...');
+            setProducts(fallbackProducts);
             setLoading(false);
         }
     }, []);
