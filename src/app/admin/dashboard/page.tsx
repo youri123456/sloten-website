@@ -433,11 +433,23 @@ export default function AdminDashboard() {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="text-sm text-gray-900">
-                                                {JSON.parse(order.order_items).map((item: OrderItem, index: number) => (
-                                                    <div key={index} className="mb-1">
-                                                        {item.quantity}x {item.name}
-                                                    </div>
-                                                ))}
+                                                {(() => {
+                                                    try {
+                                                        const items = JSON.parse(order.order_items);
+                                                        if (Array.isArray(items)) {
+                                                            return items.map((item: OrderItem, index: number) => (
+                                                                <div key={index} className="mb-1">
+                                                                    {item.quantity}x {item.name}
+                                                                </div>
+                                                            ));
+                                                        } else {
+                                                            return <span className="text-red-500">Ongeldige order data</span>;
+                                                        }
+                                                    } catch (error) {
+                                                        console.error('Error parsing order items:', error);
+                                                        return <span className="text-red-500">Fout bij laden producten</span>;
+                                                    }
+                                                })()}
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">

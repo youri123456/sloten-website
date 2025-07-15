@@ -32,11 +32,22 @@ export async function GET(request: Request) {
 
         const orders = await getAllOrders();
 
-        // Parse order items JSON for each order
-        const parsedOrders = orders.map(order => ({
-            ...order,
-            order_items: JSON.parse(order.order_items || '[]')
-        }));
+        // Parse order items JSON for each order with error handling
+        const parsedOrders = orders.map(order => {
+            try {
+                const orderItems = JSON.parse(order.order_items || '[]');
+                return {
+                    ...order,
+                    order_items: Array.isArray(orderItems) ? orderItems : []
+                };
+            } catch (error) {
+                console.error('Error parsing order items for order', order.id, ':', error);
+                return {
+                    ...order,
+                    order_items: []
+                };
+            }
+        });
 
         return NextResponse.json(parsedOrders);
     } catch {
