@@ -25,7 +25,7 @@ function PaymentForm({ totalPrice, customerInfo, cartItems, onPaymentComplete, o
     const stripe = useStripe();
     const elements = useElements();
     const [submitting, setSubmitting] = useState(false);
-
+    const [isPaymentElementReady, setIsPaymentElementReady] = useState(false);
 
     const handlePayment = async () => {
         if (!stripe || !elements) {
@@ -33,9 +33,7 @@ function PaymentForm({ totalPrice, customerInfo, cartItems, onPaymentComplete, o
             return;
         }
 
-        // Check if PaymentElement is mounted
-        const paymentElement = elements.getElement('payment');
-        if (!paymentElement) {
+        if (!isPaymentElementReady) {
             onPaymentError('Betaalformulier is nog niet klaar. Probeer het over een paar seconden opnieuw.');
             return;
         }
@@ -114,6 +112,7 @@ function PaymentForm({ totalPrice, customerInfo, cartItems, onPaymentComplete, o
                 </label>
                 <div className="border border-gray-300 rounded-lg p-4">
                     <PaymentElement
+                        onReady={() => setIsPaymentElementReady(true)}
                         options={{
                             layout: 'accordion',
                             paymentMethodOrder: ['card', 'ideal', 'bancontact', 'sofort']
@@ -124,11 +123,11 @@ function PaymentForm({ totalPrice, customerInfo, cartItems, onPaymentComplete, o
 
             <button
                 onClick={handlePayment}
-                disabled={submitting || !stripe || !elements}
+                disabled={submitting || !stripe || !elements || !isPaymentElementReady}
                 className="w-full bg-green-600 text-white py-4 px-6 rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-semibold text-lg"
             >
                 {submitting ? 'Betaling verwerken...' :
-                    !stripe || !elements ? 'Betaalformulier laden...' :
+                    !stripe || !elements || !isPaymentElementReady ? 'Betaalformulier laden...' :
                         `Betaal €${totalPrice.toFixed(2)}`}
             </button>
         </div>

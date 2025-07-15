@@ -38,10 +38,22 @@ export function CartProvider({ children }: { children: ReactNode }) {
             if (savedCart) {
                 try {
                     const cart = JSON.parse(savedCart);
-                    setCartItems(cart);
-                    updateCartCount(cart);
+                    // Validate that cart is an array
+                    if (Array.isArray(cart)) {
+                        setCartItems(cart);
+                        updateCartCount(cart);
+                    } else {
+                        console.error('Invalid cart data in localStorage, clearing...');
+                        localStorage.removeItem('cart');
+                        setCartItems([]);
+                        setCartCount(0);
+                    }
                 } catch (error) {
-                    console.error('Error loading cart:', error);
+                    console.error('Error loading cart from localStorage:', error);
+                    // Clear invalid cart data
+                    localStorage.removeItem('cart');
+                    setCartItems([]);
+                    setCartCount(0);
                 }
             }
         }
